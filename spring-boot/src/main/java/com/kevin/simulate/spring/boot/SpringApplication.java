@@ -1,5 +1,7 @@
 package com.kevin.simulate.spring.boot;
 
+import com.kevin.simulate.spring.boot.component.web.server.WebServer;
+import java.util.Map;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
@@ -20,48 +22,29 @@ import org.springframework.web.servlet.DispatcherServlet;
  */
 public class SpringApplication {
 
-    public static void run(Class<?> clazz) {
-        //启动spring容器
-        AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
-        applicationContext.register(clazz);
-        applicationContext.refresh();
-        //启动tomcat
-        startTomcat(applicationContext);
+  public static void run(Class<?> clazz) {
+    //启动spring容器
+    AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
+    applicationContext.register(clazz);
+    applicationContext.refresh();
+    //启动tomcat
+//    startTomcat(applicationContext);
+    WebServer webServer = getWebServer(applicationContext);
+    webServer.start(applicationContext);
+  }
+
+
+  public static WebServer getWebServer(WebApplicationContext webApplicationContext) {
+    Map<String, WebServer> webServerMap = webApplicationContext.getBeansOfType(WebServer.class);
+    if (webServerMap.isEmpty()) {
+      throw new IllegalStateException();
     }
-
-
-    static void startTomcat(WebApplicationContext webApplicationContext){
-        Tomcat tomcat = new Tomcat();
-        Server server = tomcat.getServer();
-        Service service = server.findService("Tomcat");
-
-        Connector connector = new Connector();
-        connector.setPort(8081);
-
-        Engine engine = new StandardEngine();
-        engine.setDefaultHost("localhost");
-
-        Host host = new StandardHost();
-        host.setName("localhost");
-
-        String contextPath = "";
-        Context context = new StandardContext();
-        context.setPath(contextPath);
-        context.addLifecycleListener(new Tomcat.FixContextListener());
-
-        host.addChild(context);
-        engine.addChild(host);
-
-        service.setContainer(engine);
-        service.addConnector(connector);
-
-        Tomcat.addServlet(context, "dispatcher", new DispatcherServlet(webApplicationContext));
-        context.addServletMappingDecoded("/*","dispatcher");
-
-        try{
-            tomcat.start();
-        } catch (LifecycleException e) {
-            e.printStackTrace();
-        }
+    if (webServerMap.size() > 1) {
+      throw new IllegalStateException();
     }
+    //返回唯一的一个
+    return webServerMap.values().stream().findFirst().get();
+  }
+
+
 }
