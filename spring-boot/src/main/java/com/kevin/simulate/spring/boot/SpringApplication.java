@@ -21,9 +21,11 @@ import org.springframework.web.servlet.DispatcherServlet;
 public class SpringApplication {
 
     public static void run(Class<?> clazz) {
+        //启动spring容器
         AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
         applicationContext.register(clazz);
         applicationContext.refresh();
+        //启动tomcat
         startTomcat(applicationContext);
     }
 
