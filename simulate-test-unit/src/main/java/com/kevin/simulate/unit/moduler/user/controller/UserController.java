@@ -21,7 +21,7 @@ public class UserController {
   @GetMapping("/sayHello")
   public ResponseEntity<String> sayHello() {
     String word = userService.sayHello();
-    return new ResponseEntity(word, HttpStatus.OK);
+    return new ResponseEntity<>(word, HttpStatus.OK);
   }
 
 

@@ -27,8 +27,6 @@ public class SpringApplication {
     AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
     applicationContext.register(clazz);
     applicationContext.refresh();
-    //启动tomcat
-//    startTomcat(applicationContext);
     WebServer webServer = getWebServer(applicationContext);
     webServer.start(applicationContext);
   }
